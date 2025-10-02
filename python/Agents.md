@@ -233,6 +233,7 @@ $env:OPENAI_CHAT_MODEL_ID="gpt-4o-mini"
 ```python
 from agent_framework.azure import AzureOpenAIChatClient
 
+# Pass configuration directly instead of using environment variables
 chat_client = AzureOpenAIChatClient(
     api_key='your-key',
     endpoint='https://your-resource.openai.azure.com/',
@@ -1033,7 +1034,7 @@ asyncio.run(main())
 # Install the framework
 pip install agent-framework --pre
 
-# Or install specific package
+# Or install specific package  
 pip install agent-framework-core --pre
 ```
 
@@ -1048,6 +1049,7 @@ pip install agent-framework-core --pre
    ```
 3. Or pass keys directly to the client:
    ```python
+   from agent_framework.openai import OpenAIChatClient
    client = OpenAIChatClient(api_key="sk-...")
    ```
 
@@ -1088,7 +1090,7 @@ client = AzureOpenAIChatClient(credential=AzureCliCredential())
        location: Annotated[str, Field(description="The location to get weather for")]
    ) -> str:
        """Get the weather for a given location."""
-       ...
+       return f"Weather in {location}: 72°F and sunny"
    ```
 3. Make instructions clearer about when to use tools
 
@@ -1099,7 +1101,8 @@ client = AzureOpenAIChatClient(credential=AzureCliCredential())
 1. Use streaming for better perceived performance:
    ```python
    async for chunk in agent.run_stream(query):
-       print(chunk.text, end="", flush=True)
+       if chunk.text:
+           print(chunk.text, end="", flush=True)
    ```
 2. Reduce max_tokens parameter
 3. Use faster models (e.g., gpt-4o-mini instead of gpt-4)
@@ -1112,9 +1115,14 @@ client = AzureOpenAIChatClient(credential=AzureCliCredential())
 1. Use threads for persistent conversations:
    ```python
    from agent_framework import Thread
+   import asyncio
    
-   thread = Thread()
-   agent.run(query, thread=thread)
+   async def main():
+       thread = Thread()
+       result = await agent.run(query, thread=thread)
+       print(result)
+   
+   asyncio.run(main())
    ```
 2. Implement context providers for long-term memory
 3. Use vector stores for RAG patterns
